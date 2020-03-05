@@ -9,36 +9,86 @@ class Player:
 
         self.lives = 3
         self.backpack = []
-        self.weapons = []
         self.friends = []
         self.current_street = current_street
 
+    def __str__(self):
+        return "Player on {}".format(self.current_street)
+
     def add_to_backpack(self, item):
 
-        if item.type == "weapon":
-            self.weapons.append(item)
-        else:
-            self.backpack.append(item)
+        self.backpack.append(item)
 
     def set_current_street(self, current_street):
 
         self.current_street = current_street
 
+    def fight(self, character, weapon):
+
+        if weapon in self.backpack:
+            if weapon.item_type == "weapon":
+                if weapon.item_name == character.weakness:
+                    self.current_street.guardian = None
+                    self.backpack.remove(weapon)
+                    print("Flawless win! You can now go. Poor {}".format(character.character_name))
+                else:
+                    self.lives -= 1
+                    print("Not today boy! And don't even come back here!")
+            else:
+                print("Ehm, seems like you can't fight with that")
+        else:
+            print("You don't have {} in your backpack".format(weapon.item_name))
+
+    def become_friends(self, character, item):
+
+        if item in self.backpack:
+            if item.item_type == "ordinary":
+                if item.item_name == character.loved_item:
+                    self.current_street.guardian = None
+                    self.backpack.remove(item)
+                    print("Wow, thanks for {}.\nWell, i guess you can go.\n"
+                          "We're friends now =)".format(item.item.item_name))
+                    self.friends.append(character)
+                elif item.item_name == character.hated_item:
+                    print("[*Hits you*] . You know what? Go to hell and neve comeback!!".format(item.item.item_name))
+                    self.lives -= 1
+                else:
+                    print("Why are you giving me {}. Think this is funny?".format(item.item.item_name))
+            else:
+                print("I think its a bad idea to become friends with someone using that")
+        else:
+            print("You don't have {} in your backpack".format(item.item_name))
+
+    def take(self, item):
+
+        for item_p in self.current_street.items:
+            if item_p.item_name == item:
+                self.current_street.items.remove(item_p)
+                self.backpack.append(item_p)
+                break
+        else:
+            print("Such item doesn't exist!")
 
     def move(self, direction):
 
         if direction in self.current_street.travel_possibilities:
 
             if self.current_street.travel_possibilities[direction].guardian is not None:
-                self.current_street.travel_possibilities[direction].guardian.interaction()
+                if self.current_street.travel_possibilities[direction].guardian.interaction():
 
-            self.current_street = self.current_street.travel_possibilities[direction]
-            self.current_street.get_details()
+                    self.current_street = self.current_street.travel_possibilities[direction]
+                self.current_street.get_details()
+            else:
+                self.current_street = self.current_street.travel_possibilities[direction]
+                self.current_street.get_details()
 
         else:
             print("Ouuf, seems like you're lost.\nYou can't go {}".format(direction))
 
-
+    def see_backpack(self):
+        print("")
+        print("Backpack: {}".format(self.backpack))
+        print("")
 
 
 
@@ -61,6 +111,14 @@ class Character:
         self.friend_phrase = None
         self.interaction_options = {}
 
+    def __str__(self):
+        return "\n{} called {}  -  {}".format(self.status,
+                                            self.character_name,
+                                            self.description)
+
+    def __repr__(self):
+        return "{} called {}".format(self.status,
+                                     self.character_name)
 
     def set_description(self, description):
         self.description = description
@@ -83,16 +141,29 @@ class Character:
         self.friend_phrase = friend_phrase
 
     def talk(self):
-        print(self.talk_phrase)
+        print("[{} says]: {}".format(self.character_name, self.talk_phrase))
+        return False
 
-    def set_interaction(self, interaction_name, interaction_func):
+    def fight(self):
+        print(self.fight_phrase)
 
+    def become_friend(self):
+        print(self.friend_phrase)
+
+    def set_interaction(self, interaction_name):
+
+        if interaction_name == "fight":
+            interaction_func = self.fight
+        elif interaction_name == "talk":
+            interaction_func = self.talk
+        elif interaction_name == "become friends":
+            interaction_func = self.become_friend
         self.interaction_options[interaction_name] = interaction_func
 
     def describe(self):
 
         if self.character_type == "guardian":
-            print("Oii, you can't pass through a nasty {},\n"
+            print("Oii, you can't pass through a nasty {},"
                   "who guards the street.\nYou see {}  -  {}\n".format(self.status,
                                                                        self.character_name,
                                                                        self.description))
@@ -106,29 +177,40 @@ class Character:
     def show_interaction_options(self):
 
         if self.interaction_options:
+            print("\n", end="")
             for interaction in self.interaction_options:
-                print("\n\t| {} |   ".format(interaction))
+                print("\t| {} |   ".format(interaction), end="")
+            print("\t| leave |   ", end="")
+            print("\n")
         else:
             print("You can't interact with this person.")
 
 
     def interaction(self):
         self.describe()
-        option = "leave"
+        option = None
 
         while option != "leave":
             self.show_interaction_options()
             option = input(">  ")
+            print("\n", end="")
+            if option == "leave": break
             if option in self.interaction_options:
-                self.interaction_options[option]()
+                if self.interaction_options[option]():
+                    return True
+
+
             else:
                 print("You can't do that!")
 
 
 class Guardian(Character):
 
+    status = "guardian"
+
     def __init__(self, character_name):
 
         super().__init__(character_name)
         self.character_type = "guardian"
+
 
