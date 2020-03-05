@@ -1,5 +1,5 @@
 # Drunk Cherry Quest
-Simple quest-like game
+Simple quest-like game.<br/>
 Python classes, inheritance, OOP
 
 
