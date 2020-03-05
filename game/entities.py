@@ -105,19 +105,30 @@ class Player:
             street_guardian = self.current_street.travel_possibilities[direction].guardian
 
             if street_guardian is not None:
-                player_choice = street_guardian.interaction()
-                if player_choice == "fight":
-                    item = self.item_choice()
-                    if self.fight(street_guardian, item):
+                street_guardian.describe()
+                while True:
+                    player_choice = street_guardian.interaction()
+                    if player_choice == "fight":
+                        item = self.item_choice()
+                        if self.fight(street_guardian, item):
+                            self.current_street = self.current_street.travel_possibilities[direction]
+                            self.current_street.guardian = None
+                            break
 
-                        self.current_street = self.current_street.travel_possibilities[direction]
-                elif player_choice == "become friends":
-                    item = self.item_choice()
-                    if self.become_friends(street_guardian, item):
-                        self.current_street = self.current_street.travel_possibilities[direction]
+                    elif player_choice == "become friends":
+                        item = self.item_choice()
+                        if self.become_friends(street_guardian, item):
+                            self.current_street = self.current_street.travel_possibilities[direction]
+                            self.current_street.guardian = None
+                            break
+
+                    elif player_choice == "talk":
+                        street_guardian.talk()
+                    elif player_choice == "leave":
+                        break
+
             else:
                 self.current_street = self.current_street.travel_possibilities[direction]
-                self.current_street.get_details()
 
         else:
             print("Ouuf, seems like you're lost.\nYou can't go {}".format(direction))
@@ -221,14 +232,13 @@ class Character:
 
 
     def interaction(self):
-        self.describe()
         option = None
 
         while option != "leave":
             self.show_interaction_options()
             option = input(">  ")
             print("\n", end="")
-            if option == "leave": break
+            if option == "leave": return option
             if option in self.interaction_options:
                 return option
             else:
