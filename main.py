@@ -24,13 +24,13 @@ guardian1.set_interaction("talk")
 guardian1.set_interaction("become friends")
 
 #Create items
-item1 = Item("book", "friendly")
+item1 = Item("book", "ordinary")
 item1.set_description("'Franko's Poems' - quite an old book that *for some reason* lied on the Franko Street")
 
 item2 = Item("sharp bottle", "weapon")
 item2.set_description("'Rozochka' - weapon well-know to people born in 1990s")
 
-item3 = Item("whiskey", "friendly")
+item3 = Item("whiskey", "ordinary")
 item3.set_description("'Proper Twelve' - a bottle of the notorious Irish whiskey by Conor Mcgregor")
 
 #Generate playing field

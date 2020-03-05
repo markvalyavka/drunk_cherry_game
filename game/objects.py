@@ -32,14 +32,11 @@ class Street:
         if (self.items) and (self.items is not None):
             for item in self.items:
                 print(item.describe())
-        if self.guardian is not None:
-            print(self.guardian)
         print("\n", end="")
         if self.travel_possibilities:
             for direction in self.travel_possibilities:
                 street = self.travel_possibilities[direction]
                 print(f'{street.street_name} is to the {direction}')
-
         print("-------------\n")
 
     def print_items(self):

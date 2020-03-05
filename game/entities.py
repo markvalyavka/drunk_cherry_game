@@ -19,6 +19,26 @@ class Player:
 
         self.backpack.append(item)
 
+    def see_backpack(self):
+        print("")
+        print("Backpack: {}".format(self.backpack))
+        print("")
+
+    def item_choice(self):
+        self.see_backpack()
+
+        if self.backpack:
+            while True:
+                print("What item to you want to choose?")
+                item = input("-->  ")
+                for item_b in self.backpack:
+                    if item_b.item_name == item:
+                        return item_b
+                else:
+                    print("You have no {} in your backpack!".format(item))
+        else:
+            print("You have no items!")
+
     def set_current_street(self, current_street):
 
         self.current_street = current_street
@@ -31,13 +51,17 @@ class Player:
                     self.current_street.guardian = None
                     self.backpack.remove(weapon)
                     print("Flawless win! You can now go. Poor {}".format(character.character_name))
+                    return True
                 else:
                     self.lives -= 1
                     print("Not today boy! And don't even come back here!")
+                    return False
             else:
                 print("Ehm, seems like you can't fight with that")
+                return False
         else:
             print("You don't have {} in your backpack".format(weapon.item_name))
+            return False
 
     def become_friends(self, character, item):
 
@@ -47,17 +71,22 @@ class Player:
                     self.current_street.guardian = None
                     self.backpack.remove(item)
                     print("Wow, thanks for {}.\nWell, i guess you can go.\n"
-                          "We're friends now =)".format(item.item.item_name))
+                          "We're friends now =)".format(item.item_name))
                     self.friends.append(character)
+                    return True
                 elif item.item_name == character.hated_item:
                     print("[*Hits you*] . You know what? Go to hell and neve comeback!!".format(item.item.item_name))
                     self.lives -= 1
+                    return False
                 else:
                     print("Why are you giving me {}. Think this is funny?".format(item.item.item_name))
+                    return False
             else:
                 print("I think its a bad idea to become friends with someone using that")
+                return False
         else:
             print("You don't have {} in your backpack".format(item.item_name))
+            return False
 
     def take(self, item):
 
@@ -73,11 +102,19 @@ class Player:
 
         if direction in self.current_street.travel_possibilities:
 
-            if self.current_street.travel_possibilities[direction].guardian is not None:
-                if self.current_street.travel_possibilities[direction].guardian.interaction():
+            street_guardian = self.current_street.travel_possibilities[direction].guardian
 
-                    self.current_street = self.current_street.travel_possibilities[direction]
-                self.current_street.get_details()
+            if street_guardian is not None:
+                player_choice = street_guardian.interaction()
+                if player_choice == "fight":
+                    item = self.item_choice()
+                    if self.fight(street_guardian, item):
+
+                        self.current_street = self.current_street.travel_possibilities[direction]
+                elif player_choice == "become friends":
+                    item = self.item_choice()
+                    if self.become_friends(street_guardian, item):
+                        self.current_street = self.current_street.travel_possibilities[direction]
             else:
                 self.current_street = self.current_street.travel_possibilities[direction]
                 self.current_street.get_details()
@@ -85,10 +122,7 @@ class Player:
         else:
             print("Ouuf, seems like you're lost.\nYou can't go {}".format(direction))
 
-    def see_backpack(self):
-        print("")
-        print("Backpack: {}".format(self.backpack))
-        print("")
+
 
 
 
@@ -196,12 +230,10 @@ class Character:
             print("\n", end="")
             if option == "leave": break
             if option in self.interaction_options:
-                if self.interaction_options[option]():
-                    return True
-
-
+                return option
             else:
                 print("You can't do that!")
+
 
 
 class Guardian(Character):
