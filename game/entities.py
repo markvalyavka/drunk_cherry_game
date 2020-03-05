@@ -58,6 +58,7 @@ class Player:
                     return False
             else:
                 print("Ehm, seems like you can't fight with that")
+                self.lives -= 1
                 return False
         else:
             print("You don't have {} in your backpack".format(weapon.item_name))
@@ -75,14 +76,15 @@ class Player:
                     self.friends.append(character)
                     return True
                 elif item.item_name == character.hated_item:
-                    print("[*Hits you*] . You know what? Go to hell and neve comeback!!".format(item.item.item_name))
+                    print("[*Hits you*] . You know what? Go to hell and neve comeback!!".format(item.item_name))
                     self.lives -= 1
                     return False
                 else:
-                    print("Why are you giving me {}. Think this is funny?".format(item.item.item_name))
+                    print("Why are you giving me {}. Think this is funny?".format(item.item_name))
                     return False
             else:
                 print("I think its a bad idea to become friends with someone using that")
+                self.lives -= 1
                 return False
         else:
             print("You don't have {} in your backpack".format(item.item_name))
@@ -106,7 +108,7 @@ class Player:
 
             if street_guardian is not None:
                 street_guardian.describe()
-                while True:
+                while self.lives > 0:
                     player_choice = street_guardian.interaction()
                     if player_choice == "fight":
                         item = self.item_choice()
@@ -124,14 +126,35 @@ class Player:
 
                     elif player_choice == "talk":
                         street_guardian.talk()
+
                     elif player_choice == "leave":
                         break
-
+                    if self.lives == 0:
+                        self.print_lose()
             else:
                 self.current_street = self.current_street.travel_possibilities[direction]
 
         else:
             print("Ouuf, seems like you're lost.\nYou can't go {}".format(direction))
+
+    @staticmethod
+    def print_win():
+        print("\n\n\n\nWOOOOOOAHHHHH! AMAZING!")
+        print(r"""    
+                   __.--~~.,-.__
+           `~-._.-(`-.__`-.
+                   \    `~~`
+              .--./ \
+             /#   \  \.--.
+             \    /  /#   \
+              '--'   \    /
+                      '--'
+        """)
+        print("\n|  So how did you like it? =)  |\n ")
+
+    @staticmethod
+    def print_lose():
+        print("\n\nOi =(\nSeems like you lost. I am not suprised tbh.")
 
 
 
@@ -158,8 +181,8 @@ class Character:
 
     def __str__(self):
         return "\n{} called {}  -  {}".format(self.status,
-                                            self.character_name,
-                                            self.description)
+                                              self.character_name,
+                                              self.description)
 
     def __repr__(self):
         return "{} called {}".format(self.status,
@@ -218,7 +241,6 @@ class Character:
                   "You see {}, named {}".format(self.description,
                                                 self.character_name))
 
-
     def show_interaction_options(self):
 
         if self.interaction_options:
@@ -229,7 +251,6 @@ class Character:
             print("\n")
         else:
             print("You can't interact with this person.")
-
 
     def interaction(self):
         option = None
@@ -243,7 +264,6 @@ class Character:
                 return option
             else:
                 print("You can't do that!")
-
 
 
 class Guardian(Character):

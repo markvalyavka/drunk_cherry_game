@@ -61,7 +61,6 @@ class Street:
         print(actions_available_print)
         print("\n", end="")
 
-
     def link_street(self, other_street, direction):
         self.travel_possibilities[direction] = other_street
 
@@ -72,6 +71,7 @@ class Item:
 
         self.item_name = item_name
         self.item_type = item_type
+        self.description = None
 
     def __str__(self):
         return self.item_name
