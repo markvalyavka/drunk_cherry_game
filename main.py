@@ -1,7 +1,7 @@
 """
 Main game module.
 """
-
+# test
 
 from game.entities import Player, Character, Guardian
 from game.objects import Street, Item
